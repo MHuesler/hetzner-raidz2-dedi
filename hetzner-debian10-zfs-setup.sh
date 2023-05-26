@@ -493,7 +493,7 @@ clear
 
 #echo "======= installing zfs on rescue system =========="
 #  echo "zfs-dkms zfs-dkms/note-incompatible-licenses note true" | debconf-set-selections
-#  apt-get install --yes software-properties-common
+  apt-get install --yes software-properties-common
 #  echo "y" | zfs
 #  zfs --version
 
@@ -733,6 +733,8 @@ chroot_execute "dpkg-reconfigure openssh-server -f noninteractive"
 
 echo "======= set root password =========="
 chroot_execute "echo root:$(printf "%q" "$v_root_password") | chpasswd"
+echo $v_root_password
+echo $v_root_password
 
 echo "======= setting up zfs cache =========="
 cp /etc/zpool.cache /mnt/etc/zfs/zpool.cache
