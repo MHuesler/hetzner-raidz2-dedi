@@ -729,6 +729,8 @@ mkdir -p "$c_zfs_mount_dir/root/.ssh/"
 cp /root/.ssh/authorized_keys "$c_zfs_mount_dir/root/.ssh/authorized_keys"
 sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/g' "$c_zfs_mount_dir/etc/ssh/sshd_config"
 sed -i 's/#PubkeyAuthentication yes/PubkeyAuthentication yes/g' "$c_zfs_mount_dir/etc/ssh/sshd_config"
+sed -i 's/#PubkeyAcceptedKeyTypes */PubkeyAcceptedKeyTypes */g' "$c_zfs_mount_dir/etc/ssh/sshd_config"
+sed -i 's/#RSAAuthentication yes/RSAAuthentication yes/g' "$c_zfs_mount_dir/etc/ssh/sshd_config"
 chroot_execute "rm /etc/ssh/ssh_host_*"
 chroot_execute "dpkg-reconfigure openssh-server -f noninteractive"
 
