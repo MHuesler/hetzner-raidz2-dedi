@@ -491,11 +491,11 @@ clear
 #  apt purge --yes "linux-image-$kver"
 #done
 
-echo "======= installing zfs on rescue system =========="
-  echo "zfs-dkms zfs-dkms/note-incompatible-licenses note true" | debconf-set-selections
-  apt-get install --yes software-properties-common
-  echo "y" | zfs
-  zfs --version
+#echo "======= installing zfs on rescue system =========="
+#  echo "zfs-dkms zfs-dkms/note-incompatible-licenses note true" | debconf-set-selections
+#  apt-get install --yes software-properties-common
+#  echo "y" | zfs
+#  zfs --version
 
 echo "======= partitioning the disk =========="
 
