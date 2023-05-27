@@ -21,8 +21,6 @@ wget https://gist.githubusercontent.com/tijszwinkels/966ec9b38b190bf80c2b2e4cfdd
 bash ./zfs
 mdadm --stop --scan
 
-screen -S zfs
-
 set -o errexit
 set -o pipefail
 set -o nounset
