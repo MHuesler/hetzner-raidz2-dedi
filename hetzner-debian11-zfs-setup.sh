@@ -13,14 +13,6 @@ screen -r zfs
 To detach from screen console, hit Ctrl-d then a
 end_header_info
 
-
-apt-get upgrade
-apt-get update
-
-wget https://gist.githubusercontent.com/tijszwinkels/966ec9b38b190bf80c2b2e4cfddf252a/raw/6d42ae592a49deb141ed4c42e6973eec5f4247f8/zfs
-bash ./zfs
-mdadm --stop --scan
-
 set -o errexit
 set -o pipefail
 set -o nounset
