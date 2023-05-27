@@ -13,6 +13,7 @@ screen -r zfs
 To detach from screen console, hit Ctrl-d then a
 end_header_info
 
+
 set -o errexit
 set -o pipefail
 set -o nounset
@@ -28,9 +29,9 @@ v_free_tail_space=           # integer
 v_hostname=
 v_kernel_variant=
 v_zfs_arc_max_mb=
-v_root_password=test12345678
-v_encrypt_rpool=0         # 0=false, 1=true
-v_passphrase=test123456789
+v_root_password="newpassword"
+v_encrypt_rpool=1         # 0=false, 1=true
+v_passphrase="encryptionpassphrase"
 v_zfs_experimental=0
 v_suitable_disks=()
 
@@ -653,7 +654,8 @@ echo "======= installing OpenSSH and network tooling =========="
 chroot_execute "apt install --yes openssh-server net-tools"
 
 echo "======= setup OpenSSH  =========="
-mkdir -p "$c_zfs_mount_dir/root/.ssh/"
+mkdir -p "$c_zfs_mount_dir/root/.ssh"
+touch "$c_zfs_mount_dir/root/.ssh/authorized_keys"
 cp /root/.ssh/authorized_keys "$c_zfs_mount_dir/root/.ssh/authorized_keys"
 rm -r "$c_zfs_mount_dir/etc/ssh"
 cp -r /etc/ssh "$c_zfs_mount_dir/etc/ssh"
