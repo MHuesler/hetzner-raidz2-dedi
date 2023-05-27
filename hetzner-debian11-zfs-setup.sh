@@ -726,26 +726,18 @@ chroot_execute "apt install --yes openssh-server net-tools"
 
 echo "======= setup OpenSSH  =========="
 mkdir -p "$c_zfs_mount_dir/root/.ssh/"
-
 cp /root/.ssh/authorized_keys "$c_zfs_mount_dir/root/.ssh/authorized_keys"
 sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/g' "$c_zfs_mount_dir/etc/ssh/sshd_config"
 sed -i 's/#PubkeyAuthentication yes/PubkeyAuthentication yes/g' "$c_zfs_mount_dir/etc/ssh/sshd_config"
 sed -i 's/#RSAAuthentication yes/RSAAuthentication yes/g' "$c_zfs_mount_dir/etc/ssh/sshd_config"
 sed -i 's/#StrictModes no/StrictModes no/g' "$c_zfs_mount_dir/etc/ssh/sshd_config"
 sed -i 's/#PermitRootLogin yes/PermitRootLogin yes/g' "$c_zfs_mount_dir/etc/ssh/sshd_config"
-sed -i 's/#PubkeyAcceptedKeyTypes */PubkeyAcceptedKeyTypes */g' "$c_zfs_mount_dir/etc/ssh/sshd_config"
 
 cat "$c_zfs_mount_dir/root/.ssh/authorized_keys"
-cat "$c_zfs_mount_dir/root/.ssh/authorized_keys"
-cat "$c_zfs_mount_dir/root/.ssh/authorized_keys"
-cat "$c_zfs_mount_dir/etc/ssh/sshd_config"
-cat "$c_zfs_mount_dir/etc/ssh/sshd_config"
-cat "$c_zfs_mount_dir/etc/ssh/sshd_config"
 
 chmod 700 "$c_zfs_mount_dir/root"
 chmod 600 "$c_zfs_mount_dir/root/.ssh"
 chmod 600 "$c_zfs_mount_dir/root/.ssh/authorized_keys"
-chmod 600 "$c_zfs_mount_dir/root/.ssh/*"
 
 chroot_execute "rm /etc/ssh/ssh_host_*"
 chroot_execute "dpkg-reconfigure openssh-server -f noninteractive"
