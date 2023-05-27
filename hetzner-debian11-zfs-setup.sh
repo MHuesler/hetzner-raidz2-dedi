@@ -13,25 +13,35 @@ screen -r zfs
 To detach from screen console, hit Ctrl-d then a
 end_header_info
 
+
+apt-get upgrade
+apt-get update
+
+wget https://gist.githubusercontent.com/tijszwinkels/966ec9b38b190bf80c2b2e4cfddf252a/raw/6d42ae592a49deb141ed4c42e6973eec5f4247f8/zfs
+bash ./zfs
+mdadm --stop --scan
+
+screen -S zfs
+
 set -o errexit
 set -o pipefail
 set -o nounset
 
 # Variables
-v_bpool_name=
-v_bpool_tweaks=
-v_rpool_name=
-v_rpool_tweaks=
+v_bpool_name=bpoll
+v_bpool_tweaks="-o ashift=12 -O compression=lz4"
+v_rpool_name=rpool
+v_rpool_tweaks="-o ashift=12 -O acltype=posixacl -O compression=zstd-9 -O dnodesize=auto -O relatime=on -O xattr=sa -O normalization=formD"
 declare -a v_selected_disks
 v_swap_size=                 # integer
 v_free_tail_space=           # integer
 v_hostname=
 v_kernel_variant=
 v_zfs_arc_max_mb=
-v_root_password=
-v_encrypt_rpool=             # 0=false, 1=true
-v_passphrase=
-v_zfs_experimental=
+v_root_password=test12345678
+v_encrypt_rpool=0         # 0=false, 1=true
+v_passphrase=test123456789
+v_zfs_experimental=0
 v_suitable_disks=()
 
 # Constants
@@ -41,7 +51,7 @@ c_deb_security_repo=https://mirror.hetzner.com/debian/security
 c_default_zfs_arc_max_mb=250
 c_default_bpool_tweaks="-o ashift=12 -O compression=lz4"
 c_default_rpool_tweaks="-o ashift=12 -O acltype=posixacl -O compression=zstd-9 -O dnodesize=auto -O relatime=on -O xattr=sa -O normalization=formD"
-c_default_hostname=terem
+c_default_hostname=imap
 c_zfs_mount_dir=/mnt
 c_log_dir=$(dirname "$(mktemp)")/zfs-hetzner-vm
 c_install_log=$c_log_dir/install.log
@@ -297,84 +307,22 @@ function ask_zfs_arc_max_size {
   print_variables v_zfs_arc_max_mb
 }
 
+#function ask_root_password {
+#  # shellcheck disable=SC2119
+#  print_step_info_header
 
-function ask_pool_names {
-  # shellcheck disable=SC2119
-  print_step_info_header
+  # set +x
+  # local password_invalid_message=
+  # local password_repeat=-
 
-  local bpool_name_invalid_message=
+  # while [[ "$v_root_password" != "$password_repeat" || "$v_root_password" == "" ]]; do
+    # v_root_password=$(dialog --passwordbox "${password_invalid_message}Please enter the root account password (can't be empty):" 30 100 3>&1 1>&2 2>&3)
+    # password_repeat=$(dialog --passwordbox "Please repeat the password:" 30 100 3>&1 1>&2 2>&3)
 
-  while [[ ! $v_bpool_name =~ ^[a-z][a-zA-Z_:.-]+$ ]]; do
-    v_bpool_name=$(dialog --inputbox "${bpool_name_invalid_message}Insert the name for the boot pool" 30 100 bpool 3>&1 1>&2 2>&3)
-
-    bpool_name_invalid_message="Invalid pool name! "
-  done
-  local rpool_name_invalid_message=
-
-  while [[ ! $v_rpool_name =~ ^[a-z][a-zA-Z_:.-]+$ ]]; do
-    v_rpool_name=$(dialog --inputbox "${rpool_name_invalid_message}Insert the name for the root pool" 30 100 rpool 3>&1 1>&2 2>&3)
-
-    rpool_name_invalid_message="Invalid pool name! "
-  done
-
-  print_variables v_bpool_name v_rpool_name
-}
-
-function ask_pool_tweaks {
-  # shellcheck disable=SC2119
-  print_step_info_header
-
-  v_bpool_tweaks=$(dialog --inputbox "Insert the tweaks for the boot pool" 30 100 -- "$c_default_bpool_tweaks" 3>&1 1>&2 2>&3)
-  v_rpool_tweaks=$(dialog --inputbox "Insert the tweaks for the root pool" 30 100 -- "$c_default_rpool_tweaks" 3>&1 1>&2 2>&3)
-
-  print_variables v_bpool_tweaks v_rpool_tweaks
-}
-
-
-function ask_root_password {
-  # shellcheck disable=SC2119
-  print_step_info_header
-
-  set +x
-  local password_invalid_message=
-  local password_repeat=-
-
-  while [[ "$v_root_password" != "$password_repeat" || "$v_root_password" == "" ]]; do
-    v_root_password=$(dialog --passwordbox "${password_invalid_message}Please enter the root account password (can't be empty):" 30 100 3>&1 1>&2 2>&3)
-    password_repeat=$(dialog --passwordbox "Please repeat the password:" 30 100 3>&1 1>&2 2>&3)
-
-    password_invalid_message="Passphrase empty, or not matching! "
-  done
-  set -x
-}
-
-function ask_encryption {
-  print_step_info_header
-
-  if dialog --defaultno --yesno 'Do you want to encrypt the root pool?' 30 100; then
-    v_encrypt_rpool=1
-  fi
-  set +x
-  if [[ $v_encrypt_rpool == "1" ]]; then
-    local passphrase_invalid_message=
-    local passphrase_repeat=-
-    while [[ "$v_passphrase" != "$passphrase_repeat" || ${#v_passphrase} -lt 8 ]]; do
-      v_passphrase=$(dialog --passwordbox "${passphrase_invalid_message}Please enter the passphrase for the root pool (8 chars min.):" 30 100 3>&1 1>&2 2>&3)
-      passphrase_repeat=$(dialog --passwordbox "Please repeat the passphrase:" 30 100 3>&1 1>&2 2>&3)
-
-      passphrase_invalid_message="Passphrase too short, or not matching! "
-    done
-  fi
-  set -x
-}
-
-function ask_zfs_experimental {
-  print_step_info_header
-
-  if dialog --defaultno --yesno 'Do you want to use experimental zfs module build?' 30 100; then
-    v_zfs_experimental=1
-  fi
-}
+    # password_invalid_message="Passphrase empty, or not matching! "
+  # done
+  # set -x
+#}
 
 function ask_hostname {
   # shellcheck disable=SC2119
@@ -468,17 +416,7 @@ ask_swap_size
 
 ask_free_tail_space
 
-ask_pool_names
-
-ask_pool_tweaks
-
-ask_encryption
-
 ask_zfs_arc_max_size
-
-ask_zfs_experimental
-
-ask_root_password
 
 ask_hostname
 
@@ -727,7 +665,7 @@ chroot_execute "apt install --yes openssh-server net-tools"
 echo "======= setup OpenSSH  =========="
 mkdir -p "$c_zfs_mount_dir/root/.ssh/"
 cp /root/.ssh/authorized_keys "$c_zfs_mount_dir/root/.ssh/authorized_keys"
-sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/g' "$c_zfs_mount_dir/etc/ssh/sshd_config"
+sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/g' "$c_zfs_mount_dir/etc/ssh/sshd_config"
 sed -i 's/#PubkeyAuthentication yes/PubkeyAuthentication yes/g' "$c_zfs_mount_dir/etc/ssh/sshd_config"
 sed -i 's/#RSAAuthentication yes/RSAAuthentication yes/g' "$c_zfs_mount_dir/etc/ssh/sshd_config"
 sed -i 's/#StrictModes no/StrictModes no/g' "$c_zfs_mount_dir/etc/ssh/sshd_config"
