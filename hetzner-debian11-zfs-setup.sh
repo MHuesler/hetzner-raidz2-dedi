@@ -34,6 +34,7 @@ v_encrypt_rpool=1         # 0=false, 1=true
 v_passphrase="encryptionpassphrase"
 v_zfs_experimental=0
 v_suitable_disks=()
+custom_pools_mirror_option=raidz2
 
 # Constants
 c_deb_packages_repo=https://mirror.hetzner.com/debian/packages
@@ -460,7 +461,7 @@ echo "======= create zfs pools and datasets =========="
   done
 
   if [[ ${#v_selected_disks[@]} -gt 1 ]]; then
-    pools_mirror_option=raidz2
+    pools_mirror_option=$custom_pools_mirror_option
   else
     pools_mirror_option=
   fi
@@ -703,7 +704,7 @@ if [[ $v_encrypt_rpool == "1" ]]; then
 
   chroot_execute "apt install --yes dropbear-initramfs"
 
-  cp /root/.ssh/authorized_keys "$c_zfs_mount_dir/etc/dropbear-initramfs/authorized_keys"
+  cp /root/.ssh/authorized_keys "$c_zfs_mount_dir/etc/dropbear/initramfs/authorized_keys"
 
   cp "$c_zfs_mount_dir/etc/ssh/ssh_host_rsa_key" "$c_zfs_mount_dir/etc/ssh/ssh_host_rsa_key_temp"
   chroot_execute "ssh-keygen -p -i -m pem -N '' -f /etc/ssh/ssh_host_rsa_key_temp"
